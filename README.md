@@ -4,6 +4,8 @@ Adapter for use on Google Cloud Platform or AWS Lambda. Upload Zip and use trigg
 
 ## Install
 
+### Build yourself
+
 ```bash
 npm install
 ```
@@ -14,7 +16,13 @@ Create zip:
 zip -r cl-cc.zip .
 ```
 
-Create a cloud function in GCP or Lambda, and set the handler function according to the platform you are using.
+### Use precompiled release
+
+Use one of our precompiled ZIP files from [Releases](https://github.com/OracleFinder/CryptoCompareExternalAdapter/releases). Most recent release: [cl-cc-aws-gcp.zip](https://github.com/OracleFinder/CryptoCompareExternalAdapter/releases/download/v1.0/cl-cc-aws-gcp.zip)
+
+## Upload
+
+Create a cloud function in GCP or Lambda, upload the zip file and set the handler function according to the platform you are using.
 
 * GCP: `gcpservice`
 * AWS: `handler`
