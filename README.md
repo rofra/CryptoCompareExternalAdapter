@@ -19,9 +19,11 @@ Create a cloud function in GCP or Lambda, and set the handler function according
 * GCP: `gcpservice`
 * AWS: `handler`
 
-## Test Cases (GCP test events)
+## Test Cases (GCP/AWS test events)
 
-Fail: 
+### Fail
+
+Event: 
 ```json
 {
   "id": "278c97ffadb54a5bbb93cfec5f7b5503",
@@ -29,15 +31,15 @@ Fail:
 }
 ```
 
+Result:
 ```json
 {
-  "jobRunID":"278c97ffadb54a5bbb93cfec5f7b5503",
+  "jobRunID": "278c97ffadb54a5bbb93cfec5f7b5503",
   "data": {
     "Response": "Error",
     "Message": "",
     "Type": 1,
-    "Aggregated":
-    false,
+    "Aggregated": false,
     "Data": [],
     "Path": "/data/",
     "ErrorsSummary": "Not implemented"
@@ -45,7 +47,9 @@ Fail:
 }
 ```
 
-Pass:
+### Pass
+
+Event:
 ```json
 {
   "id": "278c97ffadb54a5bbb93cfec5f7b5503",
@@ -57,6 +61,17 @@ Pass:
 }
 ```
 
+Result:
+```json
+{
+  "jobRunID": "278c97ffadb54a5bbb93cfec5f7b5503",
+  "data": {
+    "USD": 285.58
+  }
+}
+```
+
+Event:
 ```json
 {
   "id": "278c97ffadb54a5bbb93cfec5f7b5503",
@@ -68,6 +83,7 @@ Pass:
 }
 ```
 
+Event:
 ```json
 {
   "id": "278c97ffadb54a5bbb93cfec5f7b5503",
@@ -79,6 +95,7 @@ Pass:
 }
 ```
 
+Event:
 ```json
 {
   "id": "278c97ffadb54a5bbb93cfec5f7b5503",
@@ -90,6 +107,7 @@ Pass:
 }
 ```
 
+Event:
 ```json
 {
   "id": "278c97ffadb54a5bbb93cfec5f7b5503",
