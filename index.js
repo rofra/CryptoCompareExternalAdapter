@@ -1,62 +1,89 @@
 let request = require('request');
 
-exports.gcpservice = (req, res) => {
+let handle = (data, callback) => {
     let url = "https://min-api.cryptocompare.com/data/";
-    const endpoint = req.body.data.endpoint || "";
-    url = url + endpoint;
-    const fsyms = req.body.data.fsyms || "";
-    const fsym = req.body.data.fsym || "";
-    const tsyms = req.body.data.tsyms || "";
-    const tsym = req.body.data.tsym || "";
-    const exchange = req.body.data.exchange || "";
+    url = url + data.endpoint;
     let requestObj;
-    switch (endpoint) {
+
+    switch (data.endpoint) {
         case "price":
             requestObj = {
-                fsym: fsym,
-                tsyms: tsyms
-            }
+                fsym: data.fsym,
+                tsyms: data.tsyms
+            };
             break;
         case "pricemulti":
         case "pricemultifull":
             requestObj = {
-                fsyms: fsyms,
-                tsyms: tsyms
-            }
+                fsyms: data.fsyms,
+                tsyms: data.tsyms
+            };
             break;
         case "generateAvg":
             requestObj = {
-                fsym: fsym,
-                tsym: tsym,
-                e: exchange
-            }
+                fsym: data.fsym,
+                tsym: data.tsym,
+                e: data.exchange
+            };
             break;
         default:
             requestObj = {
-                fsym: fsym,
-                tsyms: tsyms
-            }
+                fsym: data.fsym,
+                tsyms: data.tsyms
+            };
             break;
     }
+
     let options = {
         url: url,
         qs: requestObj,
         json: true
-    }
+    };
+
     request(options, (error, response, body) => {
         if (error || response.statusCode >= 400) {
-            let errorData = {
-                jobRunID: req.body.id,
+            callback(response.statusCode, {
+                jobRunID: data.id,
                 status: "errored",
                 error: error
-            }
-            res.status(response.statusCode).send(errorData);
+            });
         } else {
-            let returnData = {
-                jobRunID: req.body.id,
+            callback(response.statusCode, {
+                jobRunID: data.id,
                 data: body
-            }
-            res.status(response.statusCode).send(returnData);
+            });
         }
+    });
+};
+
+exports.handler = (event, context, callback) => {
+    let data = {
+        id: event.id,
+        endpoint: event.data.endpoint || "",
+        fsyms: event.data.fsyms || "",
+        fsym: event.data.fsym || "",
+        tsyms: event.data.tsyms || "",
+        tsym: event.data.tsym || "",
+        exchange: event.data.exchange || ""
+    };
+
+    handle(data, (statusCode, responseData) => {
+        callback(null, responseData);
+    });
+};
+
+exports.gcpservice = (req, res) => {
+    let data = {
+        id: req.body.id,
+        endpoint: req.body.data.endpoint || "",
+        fsyms: req.body.data.fsyms || "",
+        fsym: req.body.data.fsym || "",
+        tsyms: req.body.data.tsyms || "",
+        tsym: req.body.data.tsym || "",
+        exchange: req.body.data.exchange || ""
+    };
+
+    handle(data, (statusCode, responseData) => {
+        res.status(statusCode).send(responseData);
     });
 };
