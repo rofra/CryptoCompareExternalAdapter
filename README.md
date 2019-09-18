@@ -1,6 +1,6 @@
 # Chainlink CryptoCompare External Adapter
 
-Adapter for use on Google Cloud Platform or AWS Lambda. Upload Zip and use trigger URL as bridge endpoint.
+Adapter for use on Google Cloud Platform, AWS Lambda or Docker. Upload Zip and use trigger URL as bridge endpoint.
 
 ## Install
 
@@ -19,6 +19,17 @@ zip -r cl-cc.zip .
 ### Use precompiled release
 
 Use one of our precompiled ZIP files from [Releases](https://github.com/OracleFinder/CryptoCompareExternalAdapter/releases). Most recent release: [cl-cc-aws-gcp.zip](https://github.com/OracleFinder/CryptoCompareExternalAdapter/releases/download/v1.0/cl-cc-aws-gcp.zip)
+
+### Docker
+```bash
+docker build . -t cryptocompareadaptor
+docker run -d \
+    --name cryptocompareadaptor \
+    -p 80:80 \
+    -e PORT=80 \
+    cryptocompareadaptor
+```
+
 
 ## Upload
 

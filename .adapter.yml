@@ -4,6 +4,7 @@ node_identifier: cryptocompare-ea
 platforms:
   - AWS Lambda
   - GCP Functions
+  - Docker
 data_sources:
   - name: CryptoCompare
     url: https://www.cryptocompare.com/
