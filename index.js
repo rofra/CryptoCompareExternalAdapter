@@ -48,6 +48,10 @@ let handle = (data, callback) => {
                 error: error
             });
         } else {
+            let resp = body;
+            if (data.endpoint === "price")
+                resp.result = resp[data.tsyms];
+
             callback(response.statusCode, {
                 jobRunID: data.id,
                 data: body
@@ -61,8 +65,8 @@ exports.handler = (event, context, callback) => {
         id: event.id,
         endpoint: event.data.endpoint || "",
         fsyms: event.data.fsyms || "",
-        fsym: event.data.fsym || "",
-        tsyms: event.data.tsyms || "",
+        fsym: event.data.coin || event.data.fsym || "",
+        tsyms: event.data.market || event.data.tsyms || "",
         tsym: event.data.tsym || "",
         exchange: event.data.exchange || ""
     };
@@ -75,10 +79,10 @@ exports.handler = (event, context, callback) => {
 exports.gcpservice = (req, res) => {
     let data = {
         id: req.body.id,
-        endpoint: req.body.data.endpoint || "",
+        endpoint: req.body.data.endpoint || "price",
         fsyms: req.body.data.fsyms || "",
-        fsym: req.body.data.fsym || "",
-        tsyms: req.body.data.tsyms || "",
+        fsym: req.body.data.coin || req.body.data.fsym || "",
+        tsyms: req.body.data.market || req.body.data.tsyms || "",
         tsym: req.body.data.tsym || "",
         exchange: req.body.data.exchange || ""
     };
