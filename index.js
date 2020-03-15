@@ -15,7 +15,7 @@ const createRequest = (input, callback) => {
     tsyms: tsyms,
     tsym: tsym,
     e: exchange,
-    apikey: process.env.API_KEY
+    api_key: process.env.API_KEY
   }
   for (let key in queryObj) {
     if (queryObj[key] === '') {
