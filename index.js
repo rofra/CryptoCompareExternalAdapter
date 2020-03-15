@@ -1,93 +1,64 @@
-let request = require('request');
+let request = require('request')
 
-let handle = (data, callback) => {
-    let url = "https://min-api.cryptocompare.com/data/";
-    url = url + data.endpoint;
-    let requestObj;
-
-    switch (data.endpoint) {
-        case "price":
-            requestObj = {
-                fsym: data.fsym,
-                tsyms: data.tsyms
-            };
-            break;
-        case "pricemulti":
-        case "pricemultifull":
-            requestObj = {
-                fsyms: data.fsyms,
-                tsyms: data.tsyms
-            };
-            break;
-        case "generateAvg":
-            requestObj = {
-                fsym: data.fsym,
-                tsym: data.tsym,
-                e: data.exchange
-            };
-            break;
-        default:
-            requestObj = {
-                fsym: data.fsym,
-                tsyms: data.tsyms
-            };
-            break;
+const createRequest = (input, callback) => {
+  let url = 'https://min-api.cryptocompare.com/data/'
+  const endpoint = input.data.endpoint || 'price'
+  url = url + endpoint
+  const fsym = input.data.fsym || input.data.coin || ''
+  const fsyms = input.data.fsyms || input.data.coin || ''
+  const tsyms = input.data.tsyms || input.data.market || ''
+  const tsym = input.data.tsym || input.data.market || ''
+  const exchange = input.data.e || input.data.exchange || ''
+  let queryObj = {
+    fsym: fsym,
+    fsyms: fsyms,
+    tsyms: tsyms,
+    tsym: tsym,
+    e: exchange,
+    apikey: process.env.API_KEY
+  }
+  for (let key in queryObj) {
+    if (queryObj[key] === '') {
+      delete queryObj[key]
     }
-
-    let options = {
-        url: url,
-        qs: requestObj,
-        json: true
-    };
-
-    request(options, (error, response, body) => {
-        if (error || response.statusCode >= 400) {
-            callback(response.statusCode, {
-                jobRunID: data.id,
-                status: "errored",
-                error: error
-            });
-        } else {
-            let resp = body;
-            if (data.endpoint === "price")
-                resp.result = resp[data.tsyms];
-
-            callback(response.statusCode, {
-                jobRunID: data.id,
-                data: body
-            });
-        }
-    });
-};
-
-exports.handler = (event, context, callback) => {
-    let data = {
-        id: event.id,
-        endpoint: event.data.endpoint || "",
-        fsyms: event.data.fsyms || "",
-        fsym: event.data.coin || event.data.fsym || "",
-        tsyms: event.data.market || event.data.tsyms || "",
-        tsym: event.data.tsym || "",
-        exchange: event.data.exchange || ""
-    };
-
-    handle(data, (statusCode, responseData) => {
-        callback(null, responseData);
-    });
-};
+  }
+  const options = {
+    url: url,
+    qs: queryObj,
+    json: true
+  }
+  request(options, (error, response, body) => {
+    if (error || response.statusCode >= 400 || body.Response == 'Error') {
+      callback(response.statusCode, {
+        jobRunID: input.id,
+        status: 'errored',
+        error: body,
+        errorMessage: body.Message,
+        statusCode: response.statusCode
+      })
+    } else {
+      const result =  body[tsyms] || body[tsym] || body.RAW.PRICE || body.RAW[fsyms][tsyms].PRICE
+      body.result = result
+      callback(response.statusCode, {
+        jobRunID: input.id,
+        data: body,
+        result: result,
+        statusCode: response.statusCode
+      })
+    }
+  })
+}
 
 exports.gcpservice = (req, res) => {
-    let data = {
-        id: req.body.id,
-        endpoint: req.body.data.endpoint || "price",
-        fsyms: req.body.data.fsyms || "",
-        fsym: req.body.data.coin || req.body.data.fsym || "",
-        tsyms: req.body.data.market || req.body.data.tsyms || "",
-        tsym: req.body.data.tsym || "",
-        exchange: req.body.data.exchange || ""
-    };
+  createRequest(req.body, (statusCode, data) => {
+    res.status(statusCode).send(data)
+  })
+}
 
-    handle(data, (statusCode, responseData) => {
-        res.status(statusCode).send(responseData);
-    });
-};
+exports.handler = (event, context, callback) => {
+  createRequest(event, (statusCode, data) => {
+    callback(null, data)
+  })
+}
+
+module.exports.createRequest = createRequest
